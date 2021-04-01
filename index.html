@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>JS in-browser barcode maker</title>
+    </head>
+    <body>
+      <h1>Barcode maker</h1>
+       <form id="formContainer"> 
+        <label>
+            <input id="barcodeType" placeholder="barcode type" type="number">
+        </label>
+        <label>
+            <input id="barcodeText" placeholder="barcode text" type="text">
+        </label>
+        <button type="submit">Create Barcode</button>
+       </form>
+
+      <script type="text/javascript">
+        let barcodetxt = document.getElementById('barcode-text')
+        let barcodetype = document.getElementById('barcode-type')
+        let formContainer = document.getElementById('formContainer')
+        formContainer.addEventListener('submit',(e)=>{
+            e.preventDefault();
+            e.preventDefault();
+            console.log("PostMSG:", e);
+            // console.log(Object.fromEntries(new/ FormData(e.target).entries()));
+            worker.postMessage({'barcodeType':1, 'barcodeText':'anytest'});
+
+        });
+        var canvas = document.querySelector('canvas');
+
+        var worker = new Worker('zint-processor.js');
+
+        worker.onmessage = function(e) {
+            console.log('onMsg:', e)
+        };
+        function requestBarcode(e, data){
+            e.preventDefault();
+            console.log("PostMSG:", data);
+            worker.postMessage(data);
+
+        }
+        function snapshot() {
+            if (localMediaStream === null) return;
+            // var ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
+                          0, 0, canvas.width, canvas.height);
+
+            var data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+      </script>
+    </body>
+</html>
