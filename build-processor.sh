@@ -7,21 +7,39 @@
 # # no need in most of the features
 # # CFLAGS=-I/usr/local/include -DCMAKE_OSX_ARCHITECTURES="armv7;armv7s;arm64" LDFLAGS=-Os
 # # CMAKE_CXX_STANDARD=11  LDFLAGS=-Os CFLAGS=-I/Users/rs/code/zbarjs-master/emsdk/upstream/include  
-# # AR=emar CFLAGS=-I/usr/local/include CMAKE_CXX_STANDARD=11 LDFLAGS=-Os 
+# # AR=emar export CFLAGS=-I/usr/local/include export CMAKE_CXX_STANDARD=11 export LDFLAGS=-Os 
 
 # env emconfigure ./configure --without-PACKAGE --without-png
 # emmake make
 # AR=emar CFLAGS=-I/usr/local/include CMAKE_CXX_STANDARD=11 LDFLAGS=-Os 
+# emmake cmake -S $SRC -B $OUT -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=1
+# emcc --bind `pwd`/zint-2.9.1-src/build/backend/libzint-static.a `pwd`/templates/zint-main.cpp  -o a.out.js \
+#  --js-library `pwd`/templates/zint-callbacks.js \
+#   -L/usr/local/Cellar/libpng/1.6.37/include   \
+#   -s WASM=0 \
+#   -s EXTRA_EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8"]' \
+#   -s SINGLE_FILE=1 -s EXIT_RUNTIME=1 -s FORCE_FILESYSTEM=1\
+#    -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s DEMANGLE_SUPPORT=1 \
+#   -s EXPORTED_FUNCTIONS='["_main"]' 
 
-emcc -o a.out.js \
- --js-library `pwd`/templates/zint-callbacks.js \
-  -I`pwd`/zint-2.9.1-src/build/backend/CMakeFiles/zint-static.dir/ofiles  `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/build/backend/libzint-static.a \
-  -s EXPORTED_FUNCTIONS='["_main","_ZBarcode_Create","_ZBarcode_Encode_and_Print","_ZBarcode_Delete"]' \
+# export CFLAGS=$CFLAGS:/usr/local/opt/libpng
+emcc -O2 -o a.out.js \
+  --js-library `pwd`/templates/zint-callbacks.js \
+  -I/usr/local/Cellar/libpng/1.6.37/include\
+  -I/usr/local/Cellar/node/15.13.0/include/node\
+  -L/usr/local/Cellar/libpng/1.6.37/lib/libpng16.a\
   -s WASM=0 \
   -s EXTRA_EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8"]' \
   -s SINGLE_FILE=1 -s EXIT_RUNTIME=1 -s FORCE_FILESYSTEM=1\
-   -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s DEMANGLE_SUPPORT=1 --ignore-dynamic-linking
+  -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s EXPORT_ALL=1 \
+  -s EXPORTED_FUNCTIONS='["_main","_iconv","_iconv_open","_iconv_close"]' -s ASSERTIONS=1\
+  `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/backend/*.c `pwd`/zint-2.9.1-src/build/backend/libzint.a 
 
+# -I/usr/local/include -L/usr/local/lib
+#  /usr/local/Cellar/libpng/1.6.37/lib
+  # -s RUNTIME_LINKED_LIBS='["`pwd`/zint-2.9.1-src/build/backend/libzint-static.a"]'\
+# `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/backend/*.c\
+# 
   # -s FORCE_FILESYSTEM=1\
 
   # -s RUNTIME_LINKED_LIBS='["`pwd`/zint-2.9.1-src/build/backend/libzint.2.9.0.dylib"]'

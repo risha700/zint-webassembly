@@ -1,5 +1,5 @@
 self.onmessage = function(barcodeData) {
-  console.log('called from wrapper onmsg', barcodeData)
+    console.log('called from wrapper onmsg', barcodeData)
     postMessage(zintProcessBarcode(barcodeData.data));
   };
   
@@ -10,11 +10,10 @@ self.onmessage = function(barcodeData) {
     Module['barcodeText'] =barcodeData.barcodeText;
     Module['barcodeType'] = barcodeData.barcodeType;
 
-    Module['outputResult'] = function (symbol, bitmap) {
+    Module['outputResult'] = function (...args) {
       
-      result.push([symbol, bitmap]);
+      result.push([...args]);
     };
-  
     /* EMSCRIPTEN_CODE */
   
     return result;

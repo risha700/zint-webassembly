@@ -25,24 +25,60 @@ mergeInto(LibraryManager.library, {
     //   Module['getImageData'](array);
     //   return array.length;
     // },
-    js_output_result: function (symbol, data) {
-      
-      var Pointer_stringify = Module["UTF8ToString"];
-      console.log('sybmol unstrigified', symbol, data)
-      // console.log('called on result', Pointer_stringify(symbol), Pointer_stringify(data));
+    js_output_result: function (bitmap, width, height, size) {
 
-      // console.log("sym", Pointer_stringify(symbol))
-      // console.log("data",Pointer_stringify(data))
+      // var Pointer_stringify = Module["UTF8ToString"];
       var HEAPU32 = Module['HEAPU32'];
-    //   const resultView = new Int32Array(
-    //     HEAP32.buffer,
-    //     polygon,
-    //     polygon_size * 2
-    // );
-    // const coordinates = new Int32Array(resultView);
-      Module['outputResult'](Pointer_stringify(symbol),
-                             Pointer_stringify(data))
-    //                          coordinates);
+      const resultView = new Int32Array(
+        HEAP32.buffer,
+        bitmap,
+        (width*height)
+    );
+      const bitmap_pointer = new Int32Array(resultView);
+      console.log('called from js_output_result',"bitmap pointer: ", bitmap_pointer,"bitmap plain", bitmap);
+      Module['outputResult'](bitmap_pointer,width,height, size);
+    },
+    
+    iconv_open: function (toCode, fromCode) {
+      var Pointer_stringify = Module["UTF8ToString"];
+      var iconv = Module['iconvCache'] || (Module['iconvCache'] = {});
+      var cd = Module['_malloc'](1);
+      var descriptor = {
+        toCode: Pointer_stringify(toCode),
+        fromCode: Pointer_stringify(fromCode)
+      };
+      descriptor.decoder = new TextDecoder(descriptor.fromCode
+                                                     .toLowerCase()
+                                                     .replace(/\/\/.*$/, ''));
+      descriptor.encoder = new TextEncoder(descriptor.toCode
+                                                     .toLowerCase()
+                                                     .replace(/\/\/.*$/, ''));
+      iconv[cd] = descriptor;
+      return cd;
+    },
+    iconv: function (cd, inbuf, inbytesleft, outbuf, outbytesleft) {
+      var iconv = Module['iconvCache'];
+      var descriptor = iconv[cd];
+      var HEAPU8 = Module['HEAPU8'], HEAP32 = Module['HEAP32'];
+      var offset = HEAP32[(inbuf >> 2)];
+      var count = HEAP32[(inbytesleft >> 2)];
+      var str = descriptor.decoder.decode(HEAPU8.subarray(offset, offset + count));
+      HEAP32[(inbuf >> 2)] += count;
+      HEAP32[(inbytesleft >> 2)] = 0;
+      var bytes = descriptor.encoder.encode(str);
+      var dest = HEAP32[(outbuf >> 2)];
+      // HACK ignoring overflow for now
+      HEAPU8.set(bytes, dest);
+      HEAP32[(outbuf >> 2)] += bytes.length;
+      HEAP32[(outbytesleft >> 2)] -= bytes.length;
+      return str.length;
+    },
+    iconv_close: function (cd) {
+      var iconv = Module['iconvCache'];
+      delete iconv[cd];
+      Module['_free'](cd);
     }
+
+  
   });
   

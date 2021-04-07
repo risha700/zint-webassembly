@@ -31,8 +31,7 @@ extern "C" {
     string encode_data("BufferingSymbolsInMemory");
 
     int error_num = ZBarcode_Encode_and_Buffer(my_symbol, (unsigned char*)encode_data.c_str(), 0, 0);
-    
-    cout<<reinterpret_cast<unsigned char*>(my_symbol->vector)<<endl;
+    // cout<<reinterpret_cast<unsigned char*>(my_symbol->vector)<<endl;
     // cout<<static_cast<string**>(&my_symbol)<<endl;
     // streambuf *s;
     
