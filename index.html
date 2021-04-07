@@ -45,90 +45,75 @@
             worker.postMessage(data);
 
         }
-        function drawOutputBitmap(data) {
-            var result = new Uint8Array(data[0][0])
-            var ctx = canvas.getContext('2d');
-            // var img = document.getElementsByTagName('img')[0]
-            var blob = new Blob( new Uint8Array(result.buffer), { type: 'image/png' } );
+    function drawOutputBitmap(data) {
+        var arr = new Uint32Array(data[0][0])
+        var ctx = canvas.getContext('2d');
 
-            var decodedBlob=ab2str(blob.arrayBuffer())
-            // imageData.data.set(blob)
-            createImageBitmap(decodedBlob).then((sprite)=>{
-                console.log(sprite);
-                
-                ctx.putImageData(sprite[0], 0, 0)
-            })
+        const header_size = 54;
 
-            // document.body.appendChild(drawArray(result, 32)); 
-            // console.log(data);
-            // // var bmpFile = new Blob( new Uint8Array(result.buffer), { type: 'image/bmp' } );
-            // // let imageData = ctx.createImageData(50, 50);
-            // var imageData = ctx.createImageData(data[0][1], data[0][2]);
+        const width = data[0][1];
+        const height = data[0][2];
+        
+        const image_size = width * height * 4;
 
-            // imageData.data.set(result);
-            // ctx.putImageData(imageData, 0, 0); 
+        // const arr = new Uint8Array(header_size + image_size);
+        const view = new DataView(arr.buffer);
+
+            // File Header
+
+        // BM magic number.
+        view.setUint16(0, 0x424D, false);
+        // File size.
+        view.setUint32(2, arr.length, true);
+        // Offset to image data.
+        view.setUint32(10, header_size, true);
+
+        // BITMAPINFOHEADER
+
+        // Size of BITMAPINFOHEADER
+        view.setUint32(14, 40, true);
+        // Width
+        view.setInt32(18, width, true);
+        // Height (signed because negative values flip
+        // the image vertically).
+        view.setInt32(22, height, true);
+        // Number of colour planes (colours stored as
+        // separate images; must be 1).
+        view.setUint16(26, 1, true);
+        // Bits per pixel.
+        view.setUint16(28, 32, true);
+        // Compression method, 0 = BI_RGB
+        view.setUint32(30, 0, true);
+        // Image size in bytes.
+        view.setUint32(34, image_size, true);
+        // Horizontal resolution, pixels per metre.
+        // This will be unused in this situation.
+        view.setInt32(38, 10000, true);
+        // Vertical resolution, pixels per metre.
+        view.setInt32(42, 10000, true);
+        // Number of colours. 0 = all
+        view.setUint32(46, 0, true);
+        // Number of important colours. 0 = all
+        view.setUint32(50, 0, true);
+
+        // Pixel data.
+        for (let w = 0; w < width; ++w) {
+        for (let h = 0; h < height; ++h) {
+            const offset = header_size + (h * width + w) * 4;
+            arr[offset + 0] = w;     // R value
+            arr[offset + 1] = h;     // G value
+            arr[offset + 2] = 255-w; // B value
+            // arr[offset + 3] is ignored but must still be present because we specified 32 BPP
         }
-        function ab2str(buf) {  
-            return String.fromCharCode.apply(null, new Uint8Array(buf));
-            }
-        function str2ab(str) {
-            var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-            var bufView = new Uint8Array(buf);
-            for (var i=0, strLen=str.length; i < strLen; i++) {
-                bufView[i] = str.charCodeAt(i);
-            }
-            return buf;
         }
 
+        const blob = new Blob([arr], { type: "image/bmp" });
+        const url = window.URL.createObjectURL(blob);
 
-function drawArray(arr, depth) {
-  var offset, height, data, image;
+        const img = document.getElementsByTagName('img')[0];
+        img.src = url;
 
-  function conv(size) {
-    return String.fromCharCode(size&0xff, (size>>8)&0xff, (size>>16)&0xff, (size>>24)&0xff);
-  }
-
-  offset = depth <= 8 ? 54 + Math.pow(2, depth)*4 : 54;
-  height = Math.ceil(Math.sqrt(arr.length * 8/depth));
-
-  //BMP Header
-  data  = 'BM';                          // ID field
-  data += conv(offset + arr.length);     // BMP size
-  data += conv(0);                       // unused
-  data += conv(offset);                  // pixel data offset
-  
-  //DIB Header
-  data += conv(40);                      // DIB header length
-  data += conv(height);                  // image height
-  data += conv(height);                  // image width
-  data += String.fromCharCode(1, 0);     // colour panes
-  data += String.fromCharCode(depth, 0); // bits per pixel
-  data += conv(0);                       // compression method
-  data += conv(arr.length);              // size of the raw data
-  data += conv(2835);                    // horizontal print resolution
-  data += conv(2835);                    // vertical print resolution
-  data += conv(0);                       // colour palette, 0 == 2^n
-  data += conv(0);                       // important colours
-  
-  //Grayscale tables for bit depths <= 8
-  if (depth <= 8) {
-    data += conv(0);
-    
-    for (var s = Math.floor(255/(Math.pow(2, depth)-1)), i = s; i < 256; i += s)  {
-      data += conv(i + i*256 + i*65536);
-    }
-  }
-  
-  //Pixel data
-  data += String.fromCharCode.apply(String, arr);
- 
-  //Image element
-  image = document.createElement('img');
-
-  image.src = 'data:image/bmp;base64,' + btoa(data);
-
-  return image;
-}
+        }
 
       </script>
     </body>

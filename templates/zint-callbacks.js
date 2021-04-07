@@ -29,12 +29,13 @@ mergeInto(LibraryManager.library, {
 
       // var Pointer_stringify = Module["UTF8ToString"];
       var HEAPU32 = Module['HEAPU32'];
-      const resultView = new Int32Array(
+      const resultView = new Uint32Array(
         HEAP32.buffer,
         bitmap,
-        (width*height)
+        // width*size
+        (width*height)+(((width*height)*4)%4)
     );
-      const bitmap_pointer = new Int32Array(resultView);
+      const bitmap_pointer = new Uint32Array(resultView);
       console.log('called from js_output_result',"bitmap pointer: ", bitmap_pointer,"bitmap plain", bitmap);
       Module['outputResult'](bitmap_pointer,width,height, size);
     },
