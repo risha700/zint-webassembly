@@ -1,7 +1,8 @@
 ## zint barcode generator lib with emcc
 --
-1. setup for compilation with emsdk
-fastcomp for build cmake
+1. setup for compilation with emsdk  2.0.15 
+
+fastcomp for build cmake build static
 
 2. download lib
 ```
@@ -21,7 +22,17 @@ lineno:23 set(ZINT_STATIC TRUE CACHE BOOL "Build static library")
 mkdir build
 cd build
 
-emcmake cmake ..  -DZLIB_INCLUDE_DIR=usr/local/include -DPNG_INCLUDE_DIR=/usr/local/Cellar/libpng/1.6.37/include -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=1
+#emcmake cmake ..  -DZLIB_INCLUDE_DIR=usr/local/include -DPNG_INCLUDE_DIR=/usr/local/Cellar/libpng/1.6.37/include 
+
+#optional include bitcode
+#-DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=1
+
+
+emcmake cmake ..  -DZLIB_INCLUDE_DIR=/usr/local/include  -DPNG_INCLUDE_DIR=/usr/local/Cellar/libpng/1.6.37/include -DPNG_PNG_INCLUDE_DIR=/usr/local/Cellar/libpng/1.6.37/include  -DZLIB_LIBRARY=/System/Volumes/Data/usr/local/bin/zlib-flate -DPNG_LIBRARY=/usr/local/lib/libpng.a -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=1
+
+#if error png headers
+emmake make -I/usr/local/Cellar/libpng/1.6.37/include -j
 
 emmake make zint-static -j -i
+
 ```

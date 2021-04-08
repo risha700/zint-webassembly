@@ -7,7 +7,7 @@
 # # no need in most of the features
 # # CFLAGS=-I/usr/local/include -DCMAKE_OSX_ARCHITECTURES="armv7;armv7s;arm64" LDFLAGS=-Os
 # # CMAKE_CXX_STANDARD=11  LDFLAGS=-Os CFLAGS=-I/Users/rs/code/zbarjs-master/emsdk/upstream/include  
-# # AR=emar export CFLAGS=-I/usr/local/include export CMAKE_CXX_STANDARD=11 export LDFLAGS=-Os 
+# # export AR=emar export CFLAGS=-I/usr/local/include export CMAKE_CXX_STANDARD=11 export LDFLAGS=-Os 
 
 # env emconfigure ./configure --without-PACKAGE --without-png
 # emmake make
@@ -28,13 +28,15 @@ emcc -O2 -o a.out.js \
   -I/usr/local/Cellar/libpng/1.6.37/include\
   -I/usr/local/Cellar/node/15.13.0/include/node\
   -L/usr/local/Cellar/libpng/1.6.37/lib/libpng16.a\
-  -s WASM=0 \
+  -s WASM=0 -s USE_LIBPNG=1 \
   -s EXTRA_EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8"]' \
   -s SINGLE_FILE=1 -s EXIT_RUNTIME=1 -s FORCE_FILESYSTEM=1\
   -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s EXPORT_ALL=1 \
   -s EXPORTED_FUNCTIONS='["_main","_iconv","_iconv_open","_iconv_close"]' -s ASSERTIONS=1\
-  `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/backend/*.c `pwd`/zint-2.9.1-src/build/backend/libzint.a 
+  `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/backend/*.c `pwd`/zint-2.9.1-src/build/backend/libzint.a
 
+
+# -s USE_ZLIB=1 -s USE_SDL=2
 # -I/usr/local/include -L/usr/local/lib
 #  /usr/local/Cellar/libpng/1.6.37/lib
   # -s RUNTIME_LINKED_LIBS='["`pwd`/zint-2.9.1-src/build/backend/libzint-static.a"]'\

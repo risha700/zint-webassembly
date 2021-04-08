@@ -33,7 +33,7 @@ mergeInto(LibraryManager.library, {
         HEAP32.buffer,
         bitmap,
         size
-        // (width*height)+(((width*height)*4)%4)
+        // (width *height)*2
     );
       const bitmap_pointer = new Uint32Array(resultView);
       console.log('called from js_output_result',"bitmap pointer: ", bitmap_pointer,"bitmap plain", bitmap);
