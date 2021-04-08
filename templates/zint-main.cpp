@@ -39,7 +39,7 @@ extern "C" {
 
     js_output_result((uint8_t *)&my_symbol->bitmap,
      my_symbol->bitmap_width,
-     my_symbol->bitmap_height, sizeof(my_symbol->bitmap_byte_length));
+     my_symbol->bitmap_height,((size_t*)my_symbol->bitmap)[-1]);
     
     
     ZBarcode_Delete(my_symbol);
