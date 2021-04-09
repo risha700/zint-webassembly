@@ -32,90 +32,119 @@
 
         var worker = new Worker('zint-processor.js');
 
-        worker.onmessage = function(e) {
-            // console.log('onMsg:', e)
-            drawOutputBitmap(e.data);
-
-            // var data = result.buffer;
-            
-        };
+        worker.onmessage = function(e) {drawOutputBitmap(e.data);}
         function requestBarcode(e, data){
             e.preventDefault();
             // console.log("PostMSG:", data);
             worker.postMessage(data);
 
         }
-    function drawOutputBitmap(data) {
-        console.log("data: ", data);
-        var arr = new Uint32Array(data[0][0])
-        var ctx = canvas.getContext('2d');
-
-        const header_size = 54;
-
-        const width = data[0][1];
-        const height = data[0][2];
-        
-        const image_size = width * height * 4;
-
-        // const arr = new Uint8Array(header_size + image_size);
-        const view = new DataView(arr.buffer);
-
-            // File Header
-
-        // BM magic number.
-        view.setUint16(0, 0x424D, false);
-        // File size.
-        view.setUint32(2, arr.length, true);
-        // Offset to image data.
-        view.setUint32(10, header_size, true);
-
-        // BITMAPINFOHEADER
-
-        // Size of BITMAPINFOHEADER
-        view.setUint32(14, 40, true);
-        // Width
-        view.setInt32(18, width, true);
-        // Height (signed because negative values flip
-        // the image vertically).
-        view.setInt32(22, height, true);
-        // Number of colour planes (colours stored as
-        // separate images; must be 1).
-        view.setUint16(26, 1, true);
-        // Bits per pixel.
-        view.setUint16(28, 32, true);
-        // Compression method, 0 = BI_RGB
-        view.setUint32(30, 0, true);
-        // Image size in bytes.
-        view.setUint32(34, image_size, true);
-        // Horizontal resolution, pixels per metre.
-        // This will be unused in this situation.
-        view.setInt32(38, 10000, true);
-        // Vertical resolution, pixels per metre.
-        view.setInt32(42, 10000, true);
-        // Number of colours. 0 = all
-        view.setUint32(46, 0, true);
-        // Number of important colours. 0 = all
-        view.setUint32(50, 0, true);
-
-        // Pixel data.
-        for (let w = 0; w < width; ++w) {
-        for (let h = 0; h < height; ++h) {
-            const offset = header_size + (h * width + w) * 4;
-            arr[offset + 0] = w;     // R value
-            arr[offset + 1] = h;     // G value
-            arr[offset + 2] = 255-w; // B value
-            // arr[offset + 3] is ignored but must still be present because we specified 32 BPP
-        }
+        function drawOutputBitmap(data) {
+            console.log("data: ", data);
+            var arr = new Uint32Array(data[0][0])
+            var ctx = canvas.getContext('2d');
+            drawBmpArr(arr,data);
+            // test canvas
+            // createImgCanvas(data, arr, ctx)
         }
 
-        const blob = new Blob([arr], { type: "image/bmp" });
-        const url = window.URL.createObjectURL(blob);
-
-        const img = document.getElementsByTagName('img')[0];
-        img.src = url;
-
+        function createImgCanvas(data, arr, ctx){
+            // arr = new Uint8Array(data[0][0])
+            const width = data[0][1];
+            const height = data[0][2];
+            const blob = new Blob([arr], { type: "image/bmp" });
+            // var img = new Image();
+            // img.src = URL.createObjectURL(blob)
+            var imgData = ctx.createImageData(width, height);
+            for (let w = 0; w < width; ++w) {
+            for (let h = 0; h < height; ++h) {
+                const offset = 54 + (h * width + w) * 4;
+                arr[offset + 0] = w;     // R value
+                arr[offset + 1] = h;     // G value
+                arr[offset + 2] = 255-w; // B value
+                // arr[offset + 3] is ignored but must still be present because we specified 32 BPP
+            }
+            }
+            imgData.data.set(arr)
+            ctx.putImageData(imgData, 0, 0);       
         }
 
+
+        function drawBmpArr(arr, data){
+            const header_size = 54;
+            const width = data[0][1];
+            const height = data[0][2];
+            const byte_width = 4;
+            const image_size = width * height * byte_width;
+            // console.log("bmp size ", header_size + image_size);
+            // arr = new Uint8Array(header_size + image_size);
+            arr = new Uint8ClampedArray(arr)
+            const view = new DataView(arr.buffer);
+
+                // File Header
+
+            // BM magic number.
+            view.setUint16(0, 0x424D, false);
+            // // File size.
+            view.setUint32(2, arr.length, true);
+            // Offset to image data.
+            view.setUint32(10, header_size, true);
+
+            // BITMAPINFOHEADER
+
+            // Size of BITMAPINFOHEADER
+            view.setUint32(14, 40, true);
+            // Width
+            view.setInt32(18, width, true);
+            // Height (signed because negative values flip
+            // the image vertically).
+            view.setInt32(22, height, true);
+            // Number of colour planes (colours stored as
+            // separate images; must be 1).
+            view.setUint16(26, 1, true);
+            // Bits per pixel.
+            view.setUint16(28, 24, true);
+            // Compression method, 0 = BI_RGB
+            view.setUint32(30, 0, true);
+            // Image size in bytes.
+            view.setUint32(34, image_size, true);
+            // Horizontal resolution, pixels per metre.
+            // This will be unused in this situation.
+            // view.setInt32(38, 10000, true);
+            // // Vertical resolution, pixels per metre.
+            // view.setInt32(42, 10000, true);
+            // // Number of colours. 0 = all
+            // view.setUint32(46, 0, true);
+            // // Number of important colours. 0 = all
+            // view.setUint32(50, 0, true);
+
+            // Pixel data.
+            // for (let w = 0; w < width; ++w) {
+            //     for (let h = 0; h < height; ++h) {
+
+
+            //         const offset = header_size + (h * width + w) * byte_width;
+            //         arr[offset + 0] = w;     // R value
+            //         arr[offset + 1] = h;     // G value
+            //         arr[offset + 2] = 255-w; // B value
+            //         // arr[offset + 3] //is ignored but must still be present because we specified 32 BPP
+
+                    
+            //     }
+            // }
+
+            const blob = new Blob([arr], { type: "image/bmp" });
+            const url = window.URL.createObjectURL(blob);
+
+            const img = document.getElementsByTagName('img')[0];
+            img.src = url;
+
+        }
+        function asBits(a) {
+            const nums = [];
+            a.forEach(v => nums.push(v.toString(2).padStart(8, '0')));
+            return nums.join('');
+            }
       </script>
     </body>
 </html>

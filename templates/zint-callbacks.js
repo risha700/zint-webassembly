@@ -25,19 +25,22 @@ mergeInto(LibraryManager.library, {
     //   Module['getImageData'](array);
     //   return array.length;
     // },
-    js_output_result: function (bitmap, width, height, size) {
+    js_output_result: function (bitmap, width, height, size, extra) {
+      // var Pointer_stringify = Module["UTF32ToString"];
+      var Pointer_stringify = Module["UTF8ToString"];
 
-      // var Pointer_stringify = Module["UTF8ToString"];
+      
+      console.log(Module);
       var HEAPU32 = Module['HEAPU32'];
       const resultView = new Uint32Array(
         HEAP32.buffer,
         bitmap,
-        size
-        // (width *height)*2
+        // size
+        // (width *height)*4
     );
       const bitmap_pointer = new Uint32Array(resultView);
-      console.log('called from js_output_result',"bitmap pointer: ", bitmap_pointer,"bitmap plain", bitmap);
-      Module['outputResult'](bitmap_pointer,width,height, size);
+      // console.log('called from js_output_result',"bitmap pointer: ", bitmap_pointer,"bitmap plain", bitmap);
+      Module['outputResult'](bitmap_pointer,width,height, size, extra);
     },
     
     iconv_open: function (toCode, fromCode) {

@@ -36,32 +36,32 @@ extern "C" {
     // streambuf *s;
     
     // cout<<reinterpret_cast<streambuf *>(&my_symbol->vector)<<"\n";      
-    // int r, g, b;
-    // int i = 0;
+    int r, g, b;
+    int i = 0;
 
-    // char BMP_ARR[my_symbol->bitmap_height*my_symbol->bitmap_width];
+    char BMP_ARR[my_symbol->bitmap_height*my_symbol->bitmap_width];
 
-    // for (int row = 0; row < my_symbol->bitmap_height; ++row)
-    // {
-    //     for (int col = 0; col < my_symbol->bitmap_width; ++col)
-    //     {
-    //         r = my_symbol->bitmap[i];
-    //         g = my_symbol->bitmap[i + 1];
-    //         b = my_symbol->bitmap[i + 2];
-    //         i += 3;
-    //         if (r == 0 && g == 0 & b == 0)
-    //         {
-    //             printf("■");
+    for (int row = 0; row < my_symbol->bitmap_height; ++row)
+    {
+        for (int col = 0; col < my_symbol->bitmap_width; ++col)
+        {
+            r = my_symbol->bitmap[i];
+            g = my_symbol->bitmap[i + 1];
+            b = my_symbol->bitmap[i + 2];
+            i += 3;
+            if (r == 0 && g == 0 & b == 0)
+            {
+                printf("■");
 
-    //         }
-    //         else
-    //         {
-    //             printf("□");
-    //         }
-    //     }
+            }
+            else
+            {
+                printf("□");
+            }
+        }
 
-    //     printf("\n");
-    // }
+        printf("\n");
+    }
 
     // js_output_result(reinterpret_cast<streambuf *>(my_symbol->bitmap), 
     //                   int (my_symbol->bitmap_width* my_symbol->bitmap_height));
