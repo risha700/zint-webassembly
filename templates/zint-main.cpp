@@ -12,8 +12,8 @@ extern "C" {
 // make it available for js
 
     extern void js_output_result(void *(bitmap), int bitmap_width, int bitmap_height, int size, void* extra);
-    extern int js_get_barcode_type();
-    extern char* js_get_barcode_text();
+    extern void *js_get_barcode_type();
+    extern void *js_get_barcode_text();
     // extern void test_logger();
 
     // std::cout << convert.to_bytes(s);
@@ -26,8 +26,17 @@ extern "C" {
     // my_symbol->symbology = BARCODE_QRCODE;
     // my_symbol->input_mode = UNICODE_MODE;
     my_symbol->scale = 2;
+    
     string encode_data("BufferingSymbolsInMemory");
+    
+    // unsigned char js_bc_text = js_get_barcode_text();
 
+    cout<<" TEXTIN C " << atoi((const char *)js_get_barcode_text())<<endl;
+
+    int js_bc_type =(int)js_get_barcode_type();
+
+
+    cout<<" TYPEIN C " << static_cast<int>(js_bc_type)<<endl;
     // test printing
     // int print_err = ZBarcode_Encode_and_Print(my_symbol, (unsigned char*)encode_data.c_str(), 0, 0);
     // if(print_err!=0){printf("%s\n", my_symbol->errtxt);}

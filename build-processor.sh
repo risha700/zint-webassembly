@@ -30,12 +30,12 @@ emcc -O2 -o a.out.js \
   -L/usr/local/Cellar/libpng/1.6.37/lib/libpng16.a\
   -s WASM=0 -s USE_LIBPNG=1 \
   -s EXTRA_EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8","UTF8ArrayToString","UTF32ToString" ]' \
-  -s SINGLE_FILE=1 -s EXIT_RUNTIME=1 -s FORCE_FILESYSTEM=1\
+  -s SINGLE_FILE=1 \
   -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s EXPORT_ALL=1 -s ALLOW_MEMORY_GROWTH=1\
   -s EXPORTED_FUNCTIONS='["_main","_iconv","_iconv_open","_iconv_close"]' -s ASSERTIONS=1\
   `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/backend/*.c `pwd`/zint-2.9.1-src/build/backend/libzint.a
 
-
+# -s EXIT_RUNTIME=1 -s FORCE_FILESYSTEM=1
 # -s USE_ZLIB=1 -s USE_SDL=2
 # -I/usr/local/include -L/usr/local/lib
 #  /usr/local/Cellar/libpng/1.6.37/lib

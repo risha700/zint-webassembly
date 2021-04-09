@@ -35,7 +35,6 @@
         worker.onmessage = function(e) {drawOutputBitmap(e.data);}
         function requestBarcode(e, data){
             e.preventDefault();
-            // console.log("PostMSG:", data);
             worker.postMessage(data);
 
         }

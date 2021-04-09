@@ -16,6 +16,7 @@ mergeInto(LibraryManager.library, {
       // var HEAPU8 = Module['HEAPU8'];
       // console.log(dataPtr)
       // return binarien(Module['barcodeType'], dataPtr, 100)
+      console.log("type from js: ", Module['barcodeType']);
       return Module['barcodeType'];
     },
     test_logger:function(){console.log(Module)},
