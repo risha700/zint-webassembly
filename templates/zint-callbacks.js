@@ -1,25 +1,21 @@
 
-
+function text2Binary(string) {
+  return string.split('').map(function (char) {
+      return char.charCodeAt(0).toString(2);
+  }).join(' ');
+}
 mergeInto(LibraryManager.library, {
     js_get_barcode_text: function () { 
-      // console.log(`Module['barcodeText'] ${Module['barcodeText']}`);
-      // var binarien = Module['stringToUTF8']
-      // var HEAPU8 = Module['HEAPU8'];
-      // console.log('dataptr', dataPtr);
-      // console.log( binarien(Module['barcodeText'], dataPtr, 100)); 
-      // return binarien(Module['barcodeText'], HEAPU8.buffer, 100)
-      return Module['barcodeText'];
+      var barcodeTextString = Module['barcodeText']
+      var Pointer_generate = Module["stringToUTF8"];
+      var buffer = Module._malloc(barcodeTextString.length + 1);
+      Pointer_generate(barcodeTextString, buffer, barcodeTextString.length*4+1)
+      return buffer
       
     },
     js_get_barcode_type: function () { 
-      // var binarien = Module['stringToUTF8']
-      // var HEAPU8 = Module['HEAPU8'];
-      // console.log(dataPtr)
-      // return binarien(Module['barcodeType'], dataPtr, 100)
-      console.log("type from js: ", Module['barcodeType']);
       return Module['barcodeType'];
     },
-    test_logger:function(){console.log(Module)},
     // js_read_input: function (dataPtr, len) {
     //   var HEAPU8 = Module['HEAPU8'];
     //   var array = HEAPU8.subarray(dataPtr, dataPtr + len);
@@ -27,10 +23,7 @@ mergeInto(LibraryManager.library, {
     //   return array.length;
     // },
     js_output_result: function (bitmap, width, height, size, extra) {
-      // var Pointer_stringify = Module["UTF32ToString"];
       var Pointer_stringify = Module["UTF8ToString"];
-
-      
       console.log(Module);
       var HEAPU32 = Module['HEAPU32'];
       const resultView = new Uint32Array(

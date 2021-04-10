@@ -2,9 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
+#include <sstream> 
 #include "/usr/local/include/zint.h"
+#include <cstdlib>
+
 
 using namespace std;
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,7 +17,7 @@ extern "C" {
 
     extern void js_output_result(void *(bitmap), int bitmap_width, int bitmap_height, int size, void* extra);
     extern void *js_get_barcode_type();
-    extern void *js_get_barcode_text();
+    extern char *js_get_barcode_text();
     // extern void test_logger();
 
     // std::cout << convert.to_bytes(s);
@@ -21,26 +25,30 @@ extern "C" {
     int main(int argc, const char *argv[]) {
 
     struct zint_symbol *my_symbol;
+    int js_bc_type =reinterpret_cast<int>(js_get_barcode_type());//this is ok
+
+    // const char js_bc_text=reinterpret_cast<const char>(js_get_barcode_text());
+
+    // char cp_str;
+    // strcpy(&cp_str, js_get_barcode_text());
+    // stringstream ss;
+    // ss<<js_bc_text;
+    // string str_bc_text = ss.str();
+
+    // cout<<"textin c "<<js_bc_text<<endl;
+
+
     my_symbol = ZBarcode_Create();
     strcpy(my_symbol->outfile, "BarcodeTest.bmp");    
     // my_symbol->symbology = BARCODE_QRCODE;
-    // my_symbol->input_mode = UNICODE_MODE;
-    my_symbol->scale = 2;
-    
-    string encode_data("BufferingSymbolsInMemory");
-    
-    // unsigned char js_bc_text = js_get_barcode_text();
+    my_symbol->symbology =js_bc_type;
+    my_symbol->input_mode = UNICODE_MODE;
+    my_symbol->scale = 3;
+    // my_symbol->option_3 = DM_DMRE;
+    string js_bc_text =js_get_barcode_text();
+    // cout<<" ptr: "<<ct<<"\n var: "<<ct<<"\n mem:"<<&ct<<"\n char from mem:"<<(uint8_t*)&ct<<endl;
 
-    cout<<" TEXTIN C " << atoi((const char *)js_get_barcode_text())<<endl;
-
-    int js_bc_type =(int)js_get_barcode_type();
-
-
-    cout<<" TYPEIN C " << static_cast<int>(js_bc_type)<<endl;
-    // test printing
-    // int print_err = ZBarcode_Encode_and_Print(my_symbol, (unsigned char*)encode_data.c_str(), 0, 0);
-    // if(print_err!=0){printf("%s\n", my_symbol->errtxt);}
-
+    string encode_data(js_bc_text);
 
     int error_num = ZBarcode_Encode_and_Buffer(my_symbol, (unsigned char*)encode_data.c_str(), 0, 0);    
     if(error_num != 0){printf("%s\n", my_symbol->errtxt);}

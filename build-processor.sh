@@ -23,16 +23,16 @@
 #   -s EXPORTED_FUNCTIONS='["_main"]' 
 
 # export CFLAGS=$CFLAGS:/usr/local/opt/libpng
-emcc -O2 -o a.out.js \
+emcc -O0 -o a.out.js \
   --js-library `pwd`/templates/zint-callbacks.js \
   -I/usr/local/Cellar/libpng/1.6.37/include\
   -I/usr/local/Cellar/node/15.13.0/include/node\
   -L/usr/local/Cellar/libpng/1.6.37/lib/libpng16.a\
   -s WASM=0 -s USE_LIBPNG=1 \
-  -s EXTRA_EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8","UTF8ArrayToString","UTF32ToString" ]' \
+  -s EXTRA_EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8","UTF8ArrayToString","UTF32ToString","writeStringToMemory","setValue" ]' \
   -s SINGLE_FILE=1 \
   -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s EXPORT_ALL=1 -s ALLOW_MEMORY_GROWTH=1\
-  -s EXPORTED_FUNCTIONS='["_main","_iconv","_iconv_open","_iconv_close"]' -s ASSERTIONS=1\
+  -s EXPORTED_FUNCTIONS='["_main","_iconv","_iconv_open","_iconv_close","_js_get_barcode_text"]' -s ASSERTIONS=1\
   `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/backend/*.c `pwd`/zint-2.9.1-src/build/backend/libzint.a
 
 # -s EXIT_RUNTIME=1 -s FORCE_FILESYSTEM=1

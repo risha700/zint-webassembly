@@ -16,14 +16,12 @@
        </form>
     <img src=""/>
       <script type="text/javascript">
-        let barcodetxt = document.getElementById('barcode-text')
-        let barcodetype = document.getElementById('barcode-type')
+        let barcodetxt = document.getElementById('barcodeText')
+        let barcodetype = document.getElementById('barcodeType')
         let formContainer = document.getElementById('formContainer')
         formContainer.addEventListener('submit',(e)=>{
             e.preventDefault();
-            // console.log("PostMSG:", e);
-            // console.log(Object.fromEntries(new/ FormData(e.target).entries()));
-            worker.postMessage({'barcodeType':1, 'barcodeText':'anytest'});
+            worker.postMessage({'barcodeType':barcodetype.value, 'barcodeText':barcodetxt.value});
             // snapshot();
 
         });
