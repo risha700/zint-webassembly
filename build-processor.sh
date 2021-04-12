@@ -1,90 +1,93 @@
-# #/bin/bash
+#/bin/bash
 # # Any copyright is dedicated to the Public Domain.
 # # http://creativecommons.org/publicdomain/zero/1.0/
-# #emcc fastcomp version
-# cd zbar-0.10
-# # unpacked from http://downloads.sourceforge.net/project/zbar/zbar/0.10/zbar-0.10.tar.bz2
-# # no need in most of the features
-# # CFLAGS=-I/usr/local/include -DCMAKE_OSX_ARCHITECTURES="armv7;armv7s;arm64" LDFLAGS=-Os
-# # CMAKE_CXX_STANDARD=11  LDFLAGS=-Os CFLAGS=-I/Users/rs/code/zbarjs-master/emsdk/upstream/include  
-# # export AR=emar export CFLAGS=-I/usr/local/include export CMAKE_CXX_STANDARD=11 export LDFLAGS=-Os 
+#emcc fastcomp version
+fastcomp_version="sdk-releases-fastcomp-edf24e7233e0def312a08cc8dcec63a461155da1-64bit"
+emsdk_exist=`which emsdk`
+if [ "$?" != "0" ]
+then
+  if [ ! -d "emsdk" ]
+  then
+  echo "Installing emsdk..."
+  git clone git@github.com:emscripten-core/emsdk.git
+  wait $!
+  cd emsdk && ./emsdk install ${fastcomp_version} && ./emsdk activate ${fastcomp_version}  && source emsdk_env.sh && cd ..
+  wait $!
+  else
+    source emsdk/emsdk_env.sh
+  fi
 
-# env emconfigure ./configure --without-PACKAGE --without-png
-# emmake make
-# AR=emar CFLAGS=-I/usr/local/include CMAKE_CXX_STANDARD=11 LDFLAGS=-Os 
-# emmake cmake -S $SRC -B $OUT -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=1
-# emcc --bind `pwd`/zint-2.9.1-src/build/backend/libzint-static.a `pwd`/templates/zint-main.cpp  -o a.out.js \
-#  --js-library `pwd`/templates/zint-callbacks.js \
-#   -L/usr/local/Cellar/libpng/1.6.37/include   \
-#   -s WASM=0 \
-#   -s EXTRA_EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8"]' \
-#   -s SINGLE_FILE=1 -s EXIT_RUNTIME=1 -s FORCE_FILESYSTEM=1\
-#    -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s DEMANGLE_SUPPORT=1 \
-#   -s EXPORTED_FUNCTIONS='["_main"]' 
+fi
 
-# export CFLAGS=$CFLAGS:/usr/local/opt/libpng
-emcc -O0 -o a.out.js \
-  --js-library `pwd`/templates/zint-callbacks.js \
-  -I/usr/local/Cellar/libpng/1.6.37/include\
-  -I/usr/local/Cellar/node/15.13.0/include/node\
-  -L/usr/local/Cellar/libpng/1.6.37/lib/libpng16.a\
-  -s WASM=0 -s USE_LIBPNG=1 \
-  -s EXTRA_EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8","UTF8ArrayToString","UTF32ToString","writeStringToMemory","setValue" ]' \
-  -s SINGLE_FILE=1 \
-  -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s EXPORT_ALL=1 -s ALLOW_MEMORY_GROWTH=1\
-  -s EXPORTED_FUNCTIONS='["_main","_iconv","_iconv_open","_iconv_close","_js_get_barcode_text"]' -s ASSERTIONS=1\
-  `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/backend/*.c `pwd`/zint-2.9.1-src/build/backend/libzint.a
+# make build
+############
+make_build(){
+  cd  zint-2.9.1-src &&  mkdir -p build && cd build
+  # emcmake cmake ..  -DZLIB_INCLUDE_DIR=/usr/local/include  -DPNG_INCLUDE_DIR=/usr/local/Cellar/libpng/1.6.37/include -DPNG_PNG_INCLUDE_DIR=/usr/local/Cellar/libpng/1.6.37/include  -DZLIB_LIBRARY=/System/Volumes/Data/usr/local/bin/zlib-flate -DPNG_LIBRARY=/usr/local/lib/libpng.a
+  emcmake cmake ..  -DNO-PNG=0 -DNO-ZLIB=0 -DNO-Qt5=0
 
-# -s EXIT_RUNTIME=1 -s FORCE_FILESYSTEM=1
-# -s USE_ZLIB=1 -s USE_SDL=2
-# -I/usr/local/include -L/usr/local/lib
-#  /usr/local/Cellar/libpng/1.6.37/lib
-  # -s RUNTIME_LINKED_LIBS='["`pwd`/zint-2.9.1-src/build/backend/libzint-static.a"]'\
-# `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/backend/*.c\
-# 
-  # -s FORCE_FILESYSTEM=1\
+  #  -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=1
+}
+# build 
+#######
+build(){
+  emmake make zint-static -j -i
+}
 
-  # -s RUNTIME_LINKED_LIBS='["`pwd`/zint-2.9.1-src/build/backend/libzint.2.9.0.dylib"]'
+compile_processor(){
+  emcc -O3 -o a.out.js \
+    --js-library `pwd`/templates/zint-callbacks.js \
+    -s WASM=0 \
+    -s EXTRA_EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8"]' \
+    -s SINGLE_FILE=1 -s SIDE_MODULE=0\
+    -s ERROR_ON_UNDEFINED_SYMBOLS=0\
+    -s EXPORTED_FUNCTIONS='["_main"]' -s ASSERTIONS=1\
+    `pwd`/templates/zint-main.cpp `pwd`/zint-2.9.1-src/build/backend/libzint-static.a
 
-  # -L `pwd`/zint-2.9.1-src/backend  `pwd`/zint-2.9.1-src/build/backend/libzint-static.a\
+    if [ "$?" == "0" ]
+    then
+    echo " ✅ Compiled Successfully"
+    fi
 
-  # -s EXPORTED_FUNCTIONS='["_main"]' \
+    sed '/\/\* EMSCRIPTEN_CODE \*\//r ./a.out.js' ./templates/zint-process-wrapper.js > ./zint-processor.js
+    rm a.out.js
+}
 
-  # -s EXPORTED_FUNCTIONS='["_main"]' \
-#  --llvm-opts='["allow-undefined","export-all"]'\
-  
-  #  -s RUNTIME_LINKED_LIBS='["/usr/local/opt/zint/lib/libzint.dylib"]'\
-  #  -s ERROR_ON_UNDEFINED_SYMBOLS=0\
-  # -DLLVM_ENABLE_PROJECTS='lld;clang,c++'\
-  # -s LLD_REPORT_UNDEFINED -v
-  # -s EXPORT_ALL=1 \
-  # --ignore-dynamic-linking
-  # -I /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libz.tbd\
+if [ "$1" == "make_build" ]
+then
+  make_build
+  build
+  exit
+  return 0
+fi
+# echo "$1"
+# echo "$#"
+# echo "$?"
+# exit
 
-  # -s RUNTIME_LINKED_LIBS='["`pwd`/zint-2.9.1-src/build/backend/libzint.2.9.0.dylib"]'\
-#  -L /usr/local/bin/ /usr/local/lib/libzint.dylib `pwd`/templates/zint-main.cpp  `pwd`/zint-2.9.1-src/build/backend/libzint.2.9.0.dylib\
-# 
-  #  -s ERROR_ON_UNDEFINED_SYMBOLS=0
-  # -s DEMANGLE_SUPPORT=1
-  # -s ERROR_ON_UNDEFINED_SYMBOLS=0
-  # -s USE_BOOST_HEADERS=1 -s PROXY_POSIX_SOCKETS=1 -s USE_PTHREADS=1 -s PROXY_TO_PTHREAD=1 -s USE_ZLIB=2
-  # -I `pwd`/zint-2.9.1-src/build/backend/libzint.2.9.0.dylib \
-  # -s EXPORTED_FUNCTIONS='["_main","_iconv","_iconv_open","_iconv_close"]' \
+if [ ! -d "zint-2.9.1-src" ]
+then
+  echo "Didn't find library src folder"
+  if [ ! -f "zint-2.9.1-src.tar.gz"  ] 
+    then
+    echo "Didn't find library tar file, downloading..."
+    wget https://sourceforge.net/projects/zint/files/zint/2.9.1/zint-2.9.1-src.tar.gz
+    wait $!
+    tar -xf zint-2.9.1-src.tar.gz 
+    wait $!
+    mv zint-2.9.1-src/backend/Makefile.mingw zint-2.9.1-src/backend/Makefile
+    sed -i '' -e 's/set(ZINT_STATIC FALSE CACHE BOOL "Build static library")/set(ZINT_STATIC TRUE CACHE BOOL "Build static library")/g' zint-2.9.1-src/CMakeLists.txt 
+    echo "Setup completed..."
+    make_build
+    wait $!
+    build
+    wait $!
+    cd ../..
+  fi
+fi
 
-  
-  # -s ERROR_ON_UNDEFINED_SYMBOLS=0\
-  #  -I`pwd`/include  ../templates/zbar-main.c `pwd`/zbar/.libs/libzbar.a \
-#
-# unused options
-# -s SIDE_MODULE=0 \
-# -s LINKABLE=1 \
-#   -s ALLOW_MEMORY_GROWTH=1 \
-#   -s SAFE_HEAP=1 \
-#   -s MALLOC=emmalloc \
-#   -s FORCE_FILESYSTEM=1 \
-#   -s ASSERTIONS=0 \
-#   -s SINGLE_FILE=1 \
-# -s BINARYEN=1 \
-#   -s --save-bc 
-sed '/\/\* EMSCRIPTEN_CODE \*\//r ./a.out.js' ./templates/zint-process-wrapper.js > ./zint-processor.js
-cd ..
+if [ -d "zint-2.9.1-src"  ]
+then
+    echo "Compiling processor...."
+    compile_processor
+fi
