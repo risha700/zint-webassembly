@@ -4,7 +4,46 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JS in-browser Barcode Generator</title>
-
+        <style>
+            .main-container{
+                width: 100%;
+                display: block;
+                margin: 0 auto;
+                position: relative;
+            }
+            form{
+                display: flex;
+                flex-direction: column;
+                justify-content: end;
+                max-width: fit-content;
+                                
+            }
+            form > label, form>button {
+                margin-top: 1rem;
+            }
+            form>button {
+                padding: 1rem 1.3rem;
+                background-color: aquamarine;
+                border: 0;
+                cursor: pointer;
+            }
+            #barcode{
+                margin-top: 2rem;
+            }
+            #barcode > img{
+                object-fit: contain;
+                max-width: 100%;
+            }
+            .headline{
+                margin-top: 2rem;
+                margin: 0 auto;
+                padding: 1rem;
+                margin-bottom: 2rem;
+                overflow: hidden;
+                max-width: fit-content;
+                border-bottom: 10px solid darkgray;
+            }
+        </style>
     </head>
     <body>
         <div class="main-container">   
@@ -16,20 +55,21 @@
                 <form id="formContainer" class=""> 
                     <label class=""> 
                         <span>Barcode Type:</span>
-                        <select name="barcode_select" id="barcode_select">
+                        <select name="barcode_select" id="barcode_select" style="max-width: 100%;">
 
                         </select>
-                        <!-- <input class="border py-2 px-3 text-grey-darkest rounded" id="barcodeType"  -->
-                        <!-- placeholder="barcode type" type="number" value=60> -->
                     </label>
                     <label>
                         <span>Barcode Text: </span>
                         <input id="barcodeText" placeholder="barcode text" type="text" value="anything is possible!">
                     </label>
-
+                    <label>
+                        <span>Scale :</span>
+                        <input type="range" name="barcodeScale" id="barcodeScale" min="2" max="6" step="1" value="2">
+                    </label>
                     <button type="submit">Generate Barcode</button>
                 </form>
-                <div id="barcode" class="barcode-img-container"></div>
+                <div id="barcode"></div>
             </div>
         </div>
 
@@ -43,6 +83,8 @@
         let formContainer = document.getElementById('formContainer')
         var barcodeContainer = document.getElementById('barcode')
         let barcode_select = document.getElementById('barcode_select')
+        let barcodeScale = document.getElementById('barcodeScale')
+
         let errorText = document.createElement('p')
 
         generateBarcodeTypes()
@@ -61,7 +103,13 @@
 
         formContainer.addEventListener('submit',(e)=>{
             e.preventDefault();
-            worker.postMessage({'barcodeType':barcodetype.value, 'barcodeText':barcodetxt.value});
+            worker.postMessage(
+                    {
+                        'barcodeType':barcodetype.value,
+                        'barcodeText':barcodetxt.value,
+                        'barcodeScale':barcodeScale.value
+                    }
+                );
         });
 
 
@@ -167,6 +215,7 @@
                 let opt = document.createElement('option')
                 opt.value = idx
                 opt.innerHTML = BARCODE_TYPES[idx]
+                if(idx ==20)opt.setAttribute('selected','');
                 barcode_select.appendChild(opt)
             })
         }

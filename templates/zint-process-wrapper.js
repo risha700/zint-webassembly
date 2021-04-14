@@ -8,6 +8,8 @@ self.onmessage = function(barcodeData) {
     
     Module['barcodeText'] =barcodeData.barcodeText;
     Module['barcodeType'] = barcodeData.barcodeType;
+    Module['barcodeScale'] = barcodeData.barcodeScale;
+    
     Module['outputResult'] = function (...args) {
       
       result.push([...args]);

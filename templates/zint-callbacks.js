@@ -10,6 +10,9 @@ mergeInto(LibraryManager.library, {
   js_get_barcode_type: function () { 
     return Module['barcodeType'];
   },
+  js_get_barcode_scale: function(){
+    return Module['barcodeScale'];
+  },
   js_output_result: function (bitmap, width, height, size, errors) {
     var Pointer_stringify = Module["UTF8ToString"];
     var HEAPU8 = Module['HEAPU8'];
