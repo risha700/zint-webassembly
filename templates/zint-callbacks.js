@@ -10,8 +10,8 @@ mergeInto(LibraryManager.library, {
   js_get_barcode_type: function () { 
     return Module['barcodeType'];
   },
-  js_output_result: function (bitmap, width, height, size, extra) {
-    // var Pointer_stringify = Module["UTF8ToString"];
+  js_output_result: function (bitmap, width, height, size, errors) {
+    var Pointer_stringify = Module["UTF8ToString"];
     var HEAPU8 = Module['HEAPU8'];
     const resultView = new Uint8Array(
       HEAP8.buffer,
@@ -20,9 +20,14 @@ mergeInto(LibraryManager.library, {
   );
   // var offset = Module._malloc(size)
     const bitmap_pointer = new Uint8Array(resultView);
-    
-    Module['outputResult'](bitmap_pointer,width,height, size, extra);
+    const error_string = Pointer_stringify(errors)
+    Module['outputResult'](bitmap_pointer,width,height, size, error_string);
   },
-
+  
+  // report_errors: function(err){
+  //   var Pointer_stringify = Module["UTF8ToString"];
+  //   // Module['errors'] = Pointer_stringify(err);
+  //   // throw new Error(Pointer_stringify(err));
+  // }
 
 });

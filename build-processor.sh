@@ -63,7 +63,7 @@ fi
 # echo "$1"
 # echo "$#"
 # echo "$?"
-# exit
+
 
 if [ ! -d "zint-2.9.1-src" ]
 then
