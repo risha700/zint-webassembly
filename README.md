@@ -1,4 +1,4 @@
-## zint barcode generator lib with emcc
+## zint barcode generator lib with emscripten
 -----------------
 ## Jump start with build script: 
 ```
