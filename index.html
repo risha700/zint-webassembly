@@ -11,21 +11,34 @@
                 margin: 0 auto;
                 position: relative;
             }
-            form{
+            form#formContainer{
+                display:flex;
+                flex-direction:column;
+                align-items: center;
+                justify-content: center;
+            }
+            form#formContainer input:focus {
+            outline: none;
+            border: darkgray solid 3px;
+            }
+
+            form#formContainer input, select {
+            flex: 1;
+            min-width: 400px;
+            min-height: 40px;
+            margin-bottom: 9px;
+            border: darkgray solid 1.3px;
+            border-radius: 300px;
+            font-size: 1.5rem;
+            text-align: center;
+            }
+            form#formContainer button{
+                padding: 1rem;
+                font-weight: 600;
+            }
+            form#formContainer label{
                 display: flex;
-                flex-direction: column;
-                justify-content: end;
-                max-width: fit-content;
-                                
-            }
-            form > label, form>button {
-                margin-top: 1rem;
-            }
-            form>button {
-                padding: 1rem 1.3rem;
-                background-color: aquamarine;
-                border: 0;
-                cursor: pointer;
+                align-items: center;
             }
             #barcode{
                 margin-top: 2rem;
@@ -41,7 +54,7 @@
                 margin-bottom: 2rem;
                 overflow: hidden;
                 max-width: fit-content;
-                border-bottom: 10px solid darkgray;
+                border-bottom: 5px solid darkgray;
             }
         </style>
     </head>
@@ -68,8 +81,9 @@
                         <input type="range" name="barcodeScale" id="barcodeScale" min="2" max="6" step="1" value="2">
                     </label>
                     <button type="submit">Generate Barcode</button>
+                    <div id="barcode"></div>
+
                 </form>
-                <div id="barcode"></div>
             </div>
         </div>
 
