@@ -1,0 +1,71 @@
+.barcode-container{
+    display:flex;
+    flex-direction:column;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    /* overflow: hidden; */
+    /* align-items: center;
+    justify-content: center; */
+}
+.barcode-container input:focus, select:focus {
+outline: none;
+border: darkgray solid 3px;
+}
+
+.barcode-container input, select{
+flex: 1;
+min-width: 400px;
+min-height: 40px;
+margin-bottom: 9px;
+border: darkgray solid 1.3px;
+border-radius: 300px;
+font-size: 1.5rem;
+text-align: center;
+padding: 1rem;
+}
+.barcode-container input[type='range']{
+    padding: 0;
+}
+.barcode-container button{
+    padding: 1rem;
+    font-weight: 600;
+}
+.barcode-container label{
+    display: flex;
+    align-items: center;
+}
+.barcode-container > img{
+    object-fit: contain;
+    max-width: 100%;
+}
+.headline{
+    margin-top: 2rem;
+    margin: 0 auto;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    max-width: fit-content;
+    border-bottom: 5px solid darkgray;
+}
+.output_wrapper {
+    position: relative;
+    padding: 2rem;
+    border: solid 0.3px #e3e3e3;
+}
+.output_wrapper button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.5rem;
+    padding-top: 0.25rem;
+    background-color: transparent;
+    border: none;
+}
+.output_wrapper button:nth-child(2){
+    right: 2.2rem;
+    border-right: 1px solid darkgray;
+
+}
+.output_wrapper button:hover{
+    cursor: pointer;
+}
